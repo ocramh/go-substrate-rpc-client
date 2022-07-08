@@ -19,6 +19,7 @@ package gsrpc_test
 import (
 	"fmt"
 	"math/big"
+	"testing"
 	"time"
 
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
@@ -82,6 +83,55 @@ func Example_listenToNewBlocks() {
 			break
 		}
 	}
+}
+
+func Test_simpleContractCall(t *testing.T) {
+	api, err := gsrpc.NewSubstrateAPI(config.Default().RPCURL)
+	if err != nil {
+		panic(err)
+	}
+
+	meta, err := api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		panic(err)
+	}
+
+	alice := signature.TestKeyringPairAlice.PublicKey
+	_, err = types.CreateStorageKey(meta, "System", "Account", alice)
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println("alice hex key", key.Hex())
+
+	fmt.Println("alice address", signature.TestKeyringPairAlice.Address)
+
+	// TODO 1.
+	// sign before submitting extrinsinc?
+	//
+	// calls to 'get' are not transaction as they simply read state => RPC
+	// calls to 'flip' are transaction as require execution (IE they write to the chain)
+
+	// TODO 2.
+	// find a way to get the contract address, needed as Dest field in the call
+	// below
+
+	// getItemSelector := "0xeb5ef023"
+	getItemsSelector := "0x6e3613ea"
+
+	var dest []types.Item
+	err = api.RPC.Contracts.Call(&dest, types.ContractCallRequest{
+		Origin:              signature.TestKeyringPairAlice.Address,
+		Dest:                "5CBRvroBXXz6ix5ZSbEFfby7MXAEDpLzpTSmTLeGYUP4n6Kw", // signature.TestKeyringPairAlice.Address,
+		Value:               types.NewU64(0),
+		GasLimit:            types.NewU64(200000000000),
+		StorageDepositLimit: nil,
+		InputData:           getItemsSelector,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("decoded response", dest)
 }
 
 func Example_listenToBalanceChange() {

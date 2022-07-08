@@ -21,6 +21,7 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpc/author"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpc/beefy"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpc/chain"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/rpc/contracts"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpc/mmr"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpc/offchain"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/rpc/state"
@@ -29,14 +30,15 @@ import (
 )
 
 type RPC struct {
-	Author   author.Author
-	Beefy    beefy.Beefy
-	Chain    chain.Chain
-	MMR      mmr.MMR
-	Offchain offchain.Offchain
-	State    state.State
-	System   system.System
-	client   client.Client
+	Author    author.Author
+	Beefy     beefy.Beefy
+	Chain     chain.Chain
+	MMR       mmr.MMR
+	Offchain  offchain.Offchain
+	State     state.State
+	System    system.System
+	Contracts contracts.Contract
+	client    client.Client
 }
 
 func NewRPC(cl client.Client) (*RPC, error) {
@@ -50,13 +52,14 @@ func NewRPC(cl client.Client) (*RPC, error) {
 	types.SetSerDeOptions(opts)
 
 	return &RPC{
-		Author:   author.NewAuthor(cl),
-		Beefy:    beefy.NewBeefy(cl),
-		Chain:    chain.NewChain(cl),
-		MMR:      mmr.NewMMR(cl),
-		Offchain: offchain.NewOffchain(cl),
-		State:    st,
-		System:   system.NewSystem(cl),
-		client:   cl,
+		Author:    author.NewAuthor(cl),
+		Beefy:     beefy.NewBeefy(cl),
+		Chain:     chain.NewChain(cl),
+		MMR:       mmr.NewMMR(cl),
+		Offchain:  offchain.NewOffchain(cl),
+		State:     st,
+		System:    system.NewSystem(cl),
+		Contracts: contracts.NewContract(cl),
+		client:    cl,
 	}, nil
 }
